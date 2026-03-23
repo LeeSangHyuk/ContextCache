@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { padding: 20px; font-family: sans-serif; width: 320px; background-color: #f0f4f8; }
+    .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    h2 { color: #1a237e; border-bottom: 2px solid #00e5ff; padding-bottom: 10px; margin-top: 0; }
+    .info-card { background: #e3f2fd; border-left: 4px solid #1565c2; padding: 15px; margin: 20px 0; border-radius: 8px; }
+    .info-card p { margin: 0; line-height: 1.5; color: #333; }
+    .info-card strong { color: #1a237e; }
+    .setting-item { margin-top: 20px; }
+    label { font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
+    select { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; background: #eee; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>⚙️ Context Cache Settings</h2>
+    <div class="info-card">
+      <p>💡 <strong>System Optimized Mode</strong></p>
+      <p>현재 시스템 프록시를 통해 최적의 AI 모델(Gemini/Llama3)이 자동으로 할당되고 있습니다. 별도의 API 설정이 필요하지 않습니다.</p>
+    </div>
+    
+    <div class="setting-item">
+      <label>Preferred Intelligence</label>
+      <select id="provider" disabled>
+        <option value="auto" selected>✨ Auto-Routing (Recommended)</option>
+      </select>
+    </div>
+  </div>
+</body>
+</html>

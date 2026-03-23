@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { width: 340px; padding: 15px; font-family: 'Malgun Gothic', sans-serif; background-color: #f0f4f8; color: #333; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #00e5ff; padding-bottom: 5px; }
+    h3 { color: #1a237e; margin: 0; display: flex; align-items: center; }
+    #settingsBtn { background: none; border: none; cursor: pointer; font-size: 18px; padding: 0; width: auto; color: #1a237e; min-width: auto; margin: 0; }
+    #settingsBtn:hover { background: none; color: #0d47a1; transform: rotate(45deg); transition: 0.3s; }
+    
+    button { 
+      width: 100%; padding: 12px; cursor: pointer; background: #1a237e; color: white; 
+      border: none; border-radius: 8px; font-weight: bold; margin-bottom: 8px; transition: 0.3s;
+    }
+    button:hover { background: #0d47a1; }
+    button:disabled { background: #9fa8da; cursor: not-allowed; }
+    
+    .section { background: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .label { font-size: 10px; color: #1a237e; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; margin-bottom: 5px; }
+    .content { font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
+    
+    ul { margin: 5px 0 0 18px; padding: 0; }
+    li { font-size: 12.5px; margin-bottom: 4px; }
+    strong { color: #0d47a1; }
+    .status-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #e3f2fd; color: #1565c2; margin-left: 5px; }
+
+    /* Usage Gauge Styles */
+    .usage-container {
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .usage-header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: #555; margin-bottom: 6px; }
+    .progress-bg { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #0047AB 0%, #00CED1 100%); width: 0%; transition: width 0.5s ease-in-out; }
+    .status-msg { font-size: 10px; color: #888; margin: 6px 0 0 0; text-align: center; }
+
+    /* Result Card Styles */
+    .result-card {
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 206, 209, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 71, 171, 0.08);
+      overflow: hidden;
+      margin-bottom: 10px;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .result-header {
+      background: linear-gradient(90deg, #f0f7ff 0%, #e0fbfc 100%);
+      padding: 8px 12px;
+      border-bottom: 1px solid #e0f2f1;
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: bold;
+      color: #0047AB;
+    }
+    .result-body {
+      padding: 12px;
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: #333;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h3>⚡ Context Cache <span id="engineTag" class="status-tag"></span></h3>
+  </header>
+
+  <div class="usage-container">
+    <div class="usage-header">
+      <span>Daily Usage</span>
+      <span id="usage-text">0 / 20</span>
+    </div>
+    <div class="progress-bg">
+      <div id="progress-fill" class="progress-fill"></div>
+    </div>
+    <p class="status-msg">✨ System Optimized Mode Active</p>
+  </div>
+
+  <div id="status-container"></div>
+
+  <button id="readBtn">방금 나눈 대화 캐싱하기</button>
+  <button id="injectBtn" style="background: #28a745;">⚡ 현재 맥락 주입하기</button>
+  <button id="clearBtn" style="background: #dc3545; padding: 8px; font-size: 11px;">캐시 초기화 (Clear)</button>
+
+  <div class="result-card">
+    <div class="result-header">🎯 Global State</div>
+    <div id="global-state" class="result-body">프로젝트 분석 전...</div>
+  </div>
+
+  <div class="result-card">
+    <div class="result-header">💡 Key Decisions</div>
+    <div class="result-body">
+      <ul id="decisions-list"></ul>
+    </div>
+  </div>
+
+  <div class="result-card">
+    <div class="result-header">🛠️ Pending Tasks</div>
+    <div class="result-body">
+      <ul id="tasks-list"></ul>
+    </div>
+  </div>
+
+  <div class="result-card">
+    <div class="result-header">📂 Code Architecture</div>
+    <div class="result-body">
+      <div id="code-arch" style="font-weight: bold; color: #00695c; margin-bottom: 5px;"></div>
+      <ul id="code-modules-list" style="margin-top: 5px; padding-top: 5px; border-top: 1px dashed #eee;"></ul>
+    </div>
+  </div>
+
+  <script src="providers.js"></script>
+  <script src="engine.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
