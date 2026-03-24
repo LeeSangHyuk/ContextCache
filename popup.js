@@ -132,42 +132,53 @@ async function updateUsageUI() {
 }
 
 async function getConversationContent() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tab = tabs[0];
   
-  const results = await chrome.scripting.executeScript({
-    target: { tabId: tab.id },
-    func: () => {
-      // 1. 주요 사이트별 정밀 선택자
-      const selectors = [
-        // ChatGPT (최신)
-        'div[data-testid^="conversation-turn-"]',
-        '.markdown.prose',
-        // Claude
-        '.font-claude-message',
-        // Gemini
-        'message-content',
-        '.model-response-text',
-        // 범용 폴백
-        '[data-testid="message"]',
-        '.message-content'
-      ];
+  if (!tab) return null;
 
-      let elements = document.querySelectorAll(selectors.join(', '));
-      
-      // 2. 만약 선택자로 못 찾았다면, 아티클이나 메인 영역의 텍스트라도 가져옴
-      if (elements.length === 0) {
-        const main = document.querySelector('main') || document.querySelector('article');
-        return main ? main.innerText : "";
+  try {
+    const results = await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: () => {
+        // 1. 각 AI 서비스별 최신 메시지 컨테이너 셀렉터
+        const selectors = [
+          '.font-claude-message',             // Claude 본문
+          'div[data-testid="conversation-turn"]', // ChatGPT
+          'div[data-message-author-role]',    // ChatGPT (New)
+          '.message-content',                 // Gemini (New)
+          'div[role="article"]',              // Gemini/General
+          '.model-response-text',             // Gemini (Specific)
+          '.contents'                         // General
+        ];
+
+        const elements = document.querySelectorAll(selectors.join(', '));
+        
+        // 2. 요소가 하나도 없을 경우의 Fallback (텍스트 기반 추출)
+        if (elements.length === 0) {
+          // 너무 짧은 div는 제외하고, 실제 대화가 담길 법한 긴 텍스트 div만 추출
+          const allDivs = Array.from(document.querySelectorAll('div'));
+          const probableChats = allDivs.filter(d => {
+            const text = d.innerText || "";
+            return text.length > 40 && d.children.length < 5;
+          });
+          return probableChats.map(el => el.innerText.trim()).join('\n\n');
+        }
+
+        // 3. 찾은 요소들을 배열로 변환하여 텍스트 합치기
+        return Array.from(elements)
+          .map(el => el.innerText.trim())
+          .filter(text => text.length > 0) // 빈 텍스트 제거
+          .join('\n\n');
       }
+    });
 
-      return Array.from(elements)
-        .map(el => el.innerText)
-        .filter(text => text.trim().length > 0)
-        .join('\n---\n');
-    }
-  });
-
-  return results[0]?.result || "";
+    // 결과값이 없으면 null 반환 (iterable 에러 방지용)
+    return (results && results[0] && results[0].result) ? results[0].result : null;
+  } catch (e) {
+    console.error("Script execution failed:", e);
+    return null;
+  }
 }
 
 async function updateContextCacheIncremental(newText, oldCache, provider, apiKey) {
