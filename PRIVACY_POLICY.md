@@ -1,23 +1,26 @@
 # Privacy Policy for Context Cache
 
-**Last Updated: 2026.03.25**
+**Last Updated: March 27, 2026**
 
-Context Cache ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we handle information when you use our Chrome Extension.
+Context Cache ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our Chrome Extension.
 
-### 1. Single Purpose
-The single purpose of Context Cache is to manage AI conversation continuity by summarizing and locally storing key context from AI models (ChatGPT, Claude, Gemini).
+### 1. Data Collection and Usage
+Context Cache collects and processes the following user data to provide its core functionality:
+* **Web Content:** We access and summarize text from AI chat platforms (ChatGPT, Claude, Gemini) solely to help you maintain conversation context.
+* **User-Generated Content:** Summaries and code architectures are generated based on the chat history you interact with.
 
-### 2. Data Collection and Usage
-- **Local Storage:** All conversation summaries and metadata are stored **locally** on your device's browser storage. 
-- **No External Transmission:** We **do not** collect, transmit, or store any of your personal data or conversation history on external servers.
-- **Third-Party Disclosure:** We do not sell, trade, or otherwise transfer your information to third parties.
+### 2. Data Storage and Retention (Important)
+* **Local Storage Only:** All data, including summaries and cached contexts, is stored **strictly on your local device** using the Chrome Storage API. 
+* **No Cloud Sync:** We do not upload, transmit, or store your data on any external servers or cloud databases.
+* **Retention:** Data is kept on your device until you manually delete it or uninstall the extension.
 
-### 3. Permissions
-- **storage:** Used to save summaries on your local machine.
-- **activeTab / scripting:** Used to read the current AI chat text and inject saved context into the input field.
+### 3. Data Processing and Disclosure
+* **No Third-Party Sharing:** We **do not sell, trade, or share** your personal data or web content with any third parties.
+* **No Tracking:** We do not use analytics or tracking scripts to monitor your behavior.
+* **Limited Use:** We only use the data to perform the specific functions of the extension as requested by the user.
 
-### 4. User Control
-Users can delete all stored data at any time by clicking the "Clear Cache" button within the extension.
+### 4. Security
+We prioritize the security of your data. By keeping all processing local to your browser, we minimize the risk of data breaches.
 
-### 5. Contact
-If you have any questions about this Privacy Policy, please contact us at: [lshprid@gmail.com]
+### 5. Contact Information
+If you have any questions regarding this Privacy Policy, please contact us via the contact email provided in the Chrome Web Store Developer Dashboard.
