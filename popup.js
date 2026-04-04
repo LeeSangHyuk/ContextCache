@@ -9,6 +9,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 현재 설정된 엔진 표시
   if (provider && engineTag) engineTag.innerText = provider === 'auto' ? 'AUTO Mode' : `${provider.toUpperCase()} Mode`;
 
+  // 설정 버튼: options 페이지 열기
+  document.getElementById('settingsBtn').addEventListener('click', () => {
+    chrome.runtime.openOptionsPage();
+  });
+
   // [캐싱하기] 버튼 로직
   document.getElementById('readBtn').addEventListener('click', async () => {
     const readBtn = document.getElementById('readBtn');
@@ -35,6 +40,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (plan.mode === 'LIMIT_EXCEEDED') {
         renderLimitExceededUI();
         throw new Error("무료 사용량을 초과했습니다.");
+      }
+
+      // [신규] API 키 미입력 처리
+      if (plan.mode === 'NO_API_KEY') {
+        const msg = plan.reason === 'length_fallback'
+          ? `⚙️ 대화가 길어서 Gemini로 자동 전환됐는데 Gemini 키가 없습니다.\n설정 페이지에서 Gemini API 키도 함께 입력해주세요.`
+          : `⚙️ '내 API 키 사용' 모드가 설정되어 있지만 키가 없습니다.\n설정 페이지(⚙️ 아이콘)에서 ${plan.provider.toUpperCase()} API 키를 입력해주세요.`;
+        alert(msg);
+        throw new Error("API 키가 없습니다.");
       }
 
       // [Diff 안정성 강화] 
@@ -71,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       renderCache(updatedCache);
     } catch (e) {
-      if (e.message !== "무료 사용량을 초과했습니다.") {
+      if (e.message !== "무료 사용량을 초과했습니다." && e.message !== "API 키가 없습니다.") {
         alert("에러: " + e.message);
       }
     } finally {
@@ -120,13 +134,24 @@ function renderLimitExceededUI() {
 }
 
 async function updateUsageUI() {
-  const { usage_count = 0 } = await chrome.storage.local.get(['usage_count']);
-  const limit = 20; // 무료 일일 제한량 (providers.js와 동일하게 유지)
-  const percentage = Math.min((usage_count / limit) * 100, 100);
+  const { usage_count = 0, api_mode } = await chrome.storage.local.get(['usage_count', 'api_mode']);
+  const usageContainer = document.querySelector('.usage-container');
 
+  // 내 API 키 모드이면 사용량 게이지 숨김
+  if (api_mode === 'own') {
+    if (usageContainer) {
+      usageContainer.innerHTML = `
+        <div style="font-size:12px; color:#2e7d32; background:#e8f5e9; padding:8px 12px; border-radius:8px; text-align:center;">
+          🔑 내 API 키 모드 — 사용량 제한 없음
+        </div>`;
+    }
+    return;
+  }
+
+  const limit = 20;
+  const percentage = Math.min((usage_count / limit) * 100, 100);
   const usageText = document.getElementById('usage-text');
   const progressFill = document.getElementById('progress-fill');
-
   if (usageText) usageText.innerText = `${usage_count} / ${limit}`;
   if (progressFill) progressFill.style.width = `${percentage}%`;
 }

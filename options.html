@@ -3,31 +3,130 @@
 <head>
   <meta charset="utf-8">
   <style>
-    body { padding: 20px; font-family: sans-serif; width: 320px; background-color: #f0f4f8; }
+    body { padding: 20px; font-family: sans-serif; width: 360px; background-color: #f0f4f8; }
     .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     h2 { color: #1a237e; border-bottom: 2px solid #00e5ff; padding-bottom: 10px; margin-top: 0; }
+
     .info-card { background: #e3f2fd; border-left: 4px solid #1565c2; padding: 15px; margin: 20px 0; border-radius: 8px; }
     .info-card p { margin: 0; line-height: 1.5; color: #333; }
     .info-card strong { color: #1a237e; }
+
     .setting-item { margin-top: 20px; }
     label { font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
-    select { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; background: #eee; cursor: not-allowed; }
+
+    select { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; background: white; cursor: pointer; }
+
+    /* 모드 토글 */
+    .mode-toggle { display: flex; border: 1px solid #c5cae9; border-radius: 8px; overflow: hidden; margin-bottom: 20px; }
+    .mode-btn {
+      flex: 1; padding: 10px; border: none; background: white;
+      cursor: pointer; font-size: 13px; color: #555; transition: 0.2s;
+    }
+    .mode-btn.active { background: #1a237e; color: white; font-weight: bold; }
+
+    /* API 키 섹션 */
+    .api-section { display: none; margin-top: 16px; }
+    .api-section.visible { display: block; }
+
+    .api-group { margin-bottom: 16px; }
+    .api-group label { font-size: 13px; color: #1a237e; margin-bottom: 4px; }
+    .api-input-wrap { position: relative; }
+    .api-input-wrap input {
+      width: 100%; padding: 9px 36px 9px 10px; border-radius: 6px;
+      border: 1px solid #c5cae9; font-size: 13px; box-sizing: border-box;
+      font-family: monospace; background: #fafafa;
+    }
+    .api-input-wrap input:focus { outline: none; border-color: #1a237e; background: white; }
+    .toggle-eye {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; font-size: 15px; padding: 0;
+    }
+    .api-hint { font-size: 11px; color: #888; margin-top: 4px; }
+    .api-hint a { color: #1565c2; text-decoration: none; }
+
+    /* 저장 버튼 */
+    .save-btn {
+      width: 100%; padding: 11px; background: #1a237e; color: white;
+      border: none; border-radius: 8px; font-weight: bold; font-size: 14px;
+      cursor: pointer; margin-top: 8px; transition: 0.2s;
+    }
+    .save-btn:hover { background: #0d47a1; }
+
+    /* 토스트 */
+    .toast {
+      display: none; margin-top: 12px; padding: 10px 14px;
+      border-radius: 8px; font-size: 13px; text-align: center;
+    }
+    .toast.success { background: #e8f5e9; color: #2e7d32; display: block; }
+    .toast.error   { background: #ffebee; color: #c62828; display: block; }
+
+    /* 시스템 모드 안내 */
+    .system-info { display: none; }
+    .system-info.visible { display: block; }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>⚙️ Context Cache Settings</h2>
-    <div class="info-card">
-      <p>💡 <strong>System Optimized Mode</strong></p>
-      <p>현재 시스템 프록시를 통해 최적의 AI 모델(Gemini/Llama3)이 자동으로 할당되고 있습니다. 별도의 API 설정이 필요하지 않습니다.</p>
-    </div>
-    
+
+    <!-- 모드 선택 -->
     <div class="setting-item">
-      <label>Preferred Intelligence</label>
-      <select id="provider" disabled>
-        <option value="auto" selected>✨ Auto-Routing (Recommended)</option>
-      </select>
+      <label>API Mode</label>
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="btnSystem">✨ System (무료)</button>
+        <button class="mode-btn" id="btnOwn">🔑 내 API 키 사용</button>
+      </div>
     </div>
+
+    <!-- 시스템 모드 안내 -->
+    <div class="system-info visible" id="systemInfo">
+      <div class="info-card">
+        <p>💡 <strong>System Optimized Mode</strong></p>
+        <p>시스템 프록시를 통해 Gemini / Groq 모델이 자동으로 할당됩니다.<br>하루 <strong>20회</strong> 무료로 사용할 수 있습니다.</p>
+      </div>
+    </div>
+
+    <!-- 내 API 키 모드 -->
+    <div class="api-section" id="apiSection">
+      <div class="info-card">
+        <p>🔒 <strong>Privacy Mode</strong></p>
+        <p>입력한 API 키는 <strong>로컬에만 저장</strong>되며, 외부 프록시를 거치지 않고 AI 서비스에 직접 연결됩니다.</p>
+      </div>
+
+      <!-- Provider 선택 -->
+      <div class="setting-item">
+        <label>사용할 AI 엔진</label>
+        <select id="ownProvider">
+          <option value="groq">⚡ Groq (Llama3 — 빠름, 무료)</option>
+          <option value="gemini">🌟 Google Gemini (Flash)</option>
+        </select>
+      </div>
+
+      <!-- Groq 키 -->
+      <div class="api-group" id="groqGroup">
+        <label>Groq API Key</label>
+        <div class="api-input-wrap">
+          <input type="password" id="groqKey" placeholder="gsk_..." autocomplete="off" />
+          <button class="toggle-eye" id="toggleGroqKey">👁</button>
+        </div>
+        <p class="api-hint">무료 발급 → <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a></p>
+      </div>
+
+      <!-- Gemini 키 -->
+      <div class="api-group" id="geminiGroup" style="display:none;">
+        <label>Gemini API Key</label>
+        <div class="api-input-wrap">
+          <input type="password" id="geminiKey" placeholder="AIza..." autocomplete="off" />
+          <button class="toggle-eye" id="toggleGeminiKey">👁</button>
+        </div>
+        <p class="api-hint">무료 발급 → <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a></p>
+      </div>
+    </div>
+
+    <button class="save-btn" id="saveBtn">💾 설정 저장</button>
+    <div class="toast" id="toast"></div>
   </div>
+
+  <script src="options.js"></script>
 </body>
 </html>
