@@ -1,4 +1,4 @@
-# Context Cache v1.1.0
+# Context Cache v1.1.1
 
 **Context Cache: AI 대화의 흐름을 잃지 않는 스마트 비서**
 
